@@ -17,9 +17,7 @@ class C2class:
 
 class Rosenbrock:
     def __call__(self, x: np.array) -> np.array:
-        return sum(
-            100*(x[1:] - x[:-1]**2)**2 + (1 - x[:-1])**2
-        )
+        return sum(100*(x[1:] - x[:-1]**2)**2 + (1 - x[:-1])**2)
 
     def gradient(self, x: np.array) -> np.array:
         n = len(x)
