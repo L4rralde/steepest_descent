@@ -1,4 +1,5 @@
 """
+2 times differentiable functions
 Author: Emmanuel Larralde
 """
 
@@ -6,20 +7,36 @@ import numpy as np
 
 
 class C2class:
+    """
+    Abstract class of 2 times smooth differentiable function.
+    These classes can be statical.
+    """
     def __call__(self, x: np.array) -> np.array:
-        pass
+        """Evaluates the function at x"""
+        raise NotImplementedError
 
     def gradient(self, x: np.array) -> np.array:
-        pass
+        """Computes the gradient at x"""
+        raise NotImplementedError
 
     def hessian(self, x: np.array) -> np.array:
-        pass
+        """Computes the Hessian at x"""
+        raise NotImplementedError
 
 class Rosenbrock:
+    """
+    Len agnostick Rosenbrock function.
+    """
     def __call__(self, x: np.array) -> np.array:
+        """
+        Evaluates the rosenbrock at x.
+        """
         return sum(100*(x[1:] - x[:-1]**2)**2 + (1 - x[:-1])**2)
 
     def gradient(self, x: np.array) -> np.array:
+        """
+        Gradient of rosenborck at x.
+        """
         n = len(x)
         result = np.zeros(n)
         result[:-1] = -400*x[:-1]*(x[1:] -  x[:-1]**2) - 2*(1 - x[:-1])
@@ -27,6 +44,9 @@ class Rosenbrock:
         return result
 
     def hessian(self, x: np.array) -> np.array:
+        """
+        Hessian of the rosenbrock function at x
+        """
         n = len(x)
         sub_diagonal = -400*x[:-1]
         diagonal = np.zeros(n)
