@@ -3,7 +3,7 @@ Author: Emmanuel Larralde
 """
 import numpy as np
 
-from differentiable import C2class, Rosenbrock
+from src.differentiable import C2class, Rosenbrock
 
 
 class SteepestDescent:
@@ -17,6 +17,7 @@ class SteepestDescent:
         self.prev_x = None
         self.x = None
         self.prev_alpha = SteepestDescent.FIXED_ALPHA
+        self.grad = None
 
         match alpha_estimator:
             case "FIXED_STEP":
@@ -82,12 +83,12 @@ class SteepestDescent:
         """
         Perfmors one cycle of the algorithm
         """
-        grad = self.f.gradient(self.x)
+        self.grad = self.f.gradient(self.x)
 
         alpha = self.estimate_step_size()
 
         self.prev_x = np.copy(self.x)
-        self.x += -alpha * grad
+        self.x += -alpha * self.grad
         self.prev_alpha = alpha
 
     def pre_solve(self, x0: np.array) -> None:
@@ -128,7 +129,7 @@ class SteepestDescent:
         tf: float,
         tx: float,
         num_its: int = 1000000
-    ) -> tuple:
+    ) -> object:
         """
         Iterating version of self.solve()
         """
@@ -138,17 +139,9 @@ class SteepestDescent:
             self.step()
             if self.met_stop_criteria(tf, tx):
                 break
-            yield self.x, k
+            yield(
+                self.x,
+                k,
+                np.linalg.norm(self.grad)
+            )
             k += 1
-
-def main() -> None:
-    """
-    An example of how to use the SteepestDescent class
-    """
-    solver = SteepestDescent(Rosenbrock, "FIXED_STEP")
-    for x, k in solver.solve_step_by_step(np.zeros(2), 1e-15, 1e-15):
-        print(k, x)
-
-
-if __name__ == '__main__':
-    main()
