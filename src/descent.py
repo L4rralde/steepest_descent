@@ -3,7 +3,7 @@ Author: Emmanuel Larralde
 """
 import numpy as np
 
-from src.differentiable import C2class, Rosenbrock
+from src.differentiable import C2class
 
 
 class SteepestDescent:
