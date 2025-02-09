@@ -78,6 +78,29 @@ class SteepestDescent:
             return True
         return False
 
+    def step(self) -> None:
+        """
+        Perfmors one cycle of the algorithm
+        """
+        grad = self.f.gradient(self.x)
+
+        alpha = self.estimate_step_size()
+
+        self.prev_x = np.copy(self.x)
+        self.x += -alpha * grad
+        self.prev_alpha = alpha
+
+    def pre_solve(self, x0: np.array) -> None:
+        """
+        Performs the initial step of the algortihm.
+        Required to avoid repeating alpha, and x
+        """
+        grad = self.f.gradient(x0)
+        alpha = SteepestDescent.FIXED_ALPHA
+        self.x = x0 - alpha*grad
+        self.prev_x = np.copy(x0)
+        self.prev_alpha = alpha
+
     def solve(
         self,
         x0: np.array,
@@ -89,41 +112,42 @@ class SteepestDescent:
         Finds a local minima of a function given initial guess
         tf, tx thresholds and a maximum number of allowed cycles.
         """
-        grad = self.f.gradient(x0)
-        alpha = SteepestDescent.FIXED_ALPHA
-        self.x = x0 - alpha*grad
-        self.prev_x = np.copy(x0)
-        self.prev_alpha = alpha
+        self.pre_solve(x0)
         k = 1
-
         for _ in range(num_its - 1):
-            grad = self.f.gradient(self.x)
-
-            alpha = self.estimate_step_size()
-
-            self.prev_x = np.copy(self.x)
-            self.x += -alpha * grad
-            self.prev_alpha = alpha
-
+            self.step()
             if self.met_stop_criteria(tf, tx):
                 break
-
             k += 1
 
         return self.x, k
 
+    def solve_step_by_step(
+        self,
+        x0: np.array,
+        tf: float,
+        tx: float,
+        num_its: int = 1000000
+    ) -> tuple:
+        """
+        Iterating version of self.solve()
+        """
+        self.pre_solve(x0)
+        k = 1
+        for _ in range(num_its - 1):
+            self.step()
+            if self.met_stop_criteria(tf, tx):
+                break
+            yield self.x, k
+            k += 1
 
 def main() -> None:
     """
     An example of how to use the SteepestDescent class
     """
     solver = SteepestDescent(Rosenbrock, "FIXED_STEP")
-    x_star, k = solver.solve(
-        np.zeros(128),
-        1e-15,
-        1e-15
-    )
-    print(k, x_star)
+    for x, k in solver.solve_step_by_step(np.zeros(2), 1e-15, 1e-15):
+        print(k, x)
 
 
 if __name__ == '__main__':
