@@ -3,14 +3,14 @@ Author: Emmanuel Larralde
 """
 import numpy as np
 
-from src.differentiable import C2class, Rosenbrock
+from differentiable import C2class, Rosenbrock
 
 
 class SteepestDescent:
     """
     Steepest Gradient Descent algorithm
     """
-    FIXED_ALPHA = 0.001
+    FIXED_ALPHA = 0.0001
 
     def __init__(self, function: C2class, alpha_estimator: str = "") -> None:
         self.f = function
@@ -52,8 +52,8 @@ class SteepestDescent:
         This one uses past learning rate, evaluations and the gradient.
         """
         grad = self.f.gradient(self.x)
-        f_x = self.f(self.x)
-        f_prevx = self.f(self.prev_x)
+        f_x = self.f.eval(self.x)
+        f_prevx = self.f.eval(self.prev_x)
         sq_norm_grad = np.dot(grad, grad)
 
         return (
@@ -65,8 +65,8 @@ class SteepestDescent:
         """
         Checks if the algorithm has plateaued
         """
-        f_x = self.f(self.x)
-        f_prevx = self.f(self.prev_x)
+        f_x = self.f.eval(self.x)
+        f_prevx = self.f.eval(self.prev_x)
         f_criterion = abs(f_x - f_prevx)/max(1, abs(f_x))
         if f_criterion <= tf:
             return True
@@ -117,7 +117,7 @@ def main() -> None:
     """
     An example of how to use the SteepestDescent class
     """
-    solver = SteepestDescent(Rosenbrock(), "APPROX2_STEP")
+    solver = SteepestDescent(Rosenbrock, "FIXED_STEP")
     x_star, k = solver.solve(
         np.zeros(128),
         1e-15,
