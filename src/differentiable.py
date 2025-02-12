@@ -68,3 +68,71 @@ class Rosenbrock:
             np.diagflat(diagonal) +
             np.diagflat(sub_diagonal, 1)
         )
+
+class MdsCost:
+    """
+    Multidemensional Scaling cost function class
+    """
+    @staticmethod
+    @njit
+    def dist_mat(data: np.array, p: int) -> np.array:
+        """
+        Computes the distance matrix.
+        """
+        d = np.zeros((p, p))
+        for i in range(p):
+            for j in range(i):
+                d[i][j] = np.linalg.norm(data[i] - data[j])
+        return d + d.T
+
+    @staticmethod
+    def cost(delta: np.array, z: np.array, p: int) -> float:
+        """
+        Computes the cost for a given original space distance matrix
+        and a matrix of the new space vectors.
+        """
+        acc = 0
+        for i in range(p):
+            for j in range(i):
+                acc += (delta[i][j] - np.linalg.norm(z[i] - z[j]))**2
+        return acc
+
+    @staticmethod
+    def dz_gradient(delta: np.array, z: np.array, p: int) -> np.array:
+        """
+        Computes the gradient of the evaluation of the cost function above.
+        """
+        d = MdsCost.dist_mat(z, p)
+        g = np.zeros((p, len(z[0])))
+        for k in range(p):
+            for j in range(p):
+                if d[k][j] == 0:
+                    continue
+                g[k] += (z[k] - z[j]) * (d[k][j] - delta[k][j])/d[k][j]
+        return g
+
+    def __init__(self, data: np.array) -> None:
+        """
+        Initializes the class with the number of samples and
+        the constant distance matrix (original space)
+        """
+        self.p, _ = data.shape
+        self.delta = MdsCost.dist_mat(data, self.p)
+
+    def eval(self, z: np.array) -> float:
+        """
+        Evaluates the cost function given the matrix of new arrays.
+        """
+        return MdsCost.cost(self.delta, z, self.p)
+
+    def gradient(self, z: np.array) -> np.array:
+        """
+        Computes the gradient given the matrix of new arrays.
+        """
+        return MdsCost.dz_gradient(self.delta, z, self.p)
+
+    def hessian(self, z: np.array) -> np.array:
+        """
+        Raises an error if tries to compute Hessian. It is not a matrix for this case.
+        """
+        raise NotImplementedError
