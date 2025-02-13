@@ -109,7 +109,7 @@ class MdsCost:
                 if d[k][j] == 0:
                     continue
                 g[k] += (z[k] - z[j]) * (d[k][j] - delta[k][j])/d[k][j]
-        return g
+        return 2*g
 
     def __init__(self, data: np.array) -> None:
         """

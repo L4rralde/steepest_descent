@@ -10,7 +10,7 @@ class SteepestDescent:
     """
     Steepest Gradient Descent algorithm
     """
-    FIXED_ALPHA = 0.001
+    FIXED_ALPHA = 0.0001
 
     def __init__(self, function: C2class, alpha_estimator: str = "") -> None:
         self.f = function
