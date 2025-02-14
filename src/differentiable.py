@@ -103,12 +103,12 @@ class MdsCost:
         Computes the gradient of the evaluation of the cost function above.
         """
         d = MdsCost.dist_mat(z, p)
+        #d2 = np.nan_to_num(1 - np.triu(delta, k=1) / np.triu(d, k=1))
+        #d2 += d2.T
+        d2 = np.nan_to_num(1 - delta/d)
         g = np.zeros((p, len(z[0])))
         for k in range(p):
-            for j in range(p):
-                if d[k][j] == 0:
-                    continue
-                g[k] += (z[k] - z[j]) * (d[k][j] - delta[k][j])/d[k][j]
+            g[k] = np.dot(d2[k], z[k] - z)
         return 2*g
 
     def __init__(self, data: np.array) -> None:

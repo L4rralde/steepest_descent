@@ -5,3 +5,4 @@ Author: Emmanuel Larralde
 
 from src import differentiable
 from src import descent
+from src import profiling
